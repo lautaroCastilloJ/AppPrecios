@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { BarcodeScanner } from '../components/BarcodeScanner'
 import { ProductoCard } from '../components/ProductoCard'
 import { buscarProductos, listarCategorias } from '../services/productos'
 import type { Producto } from '../types/producto'
@@ -11,6 +12,7 @@ export function SearchPage() {
   const [categorias, setCategorias] = useState<string[]>([])
   const [resultados, setResultados] = useState<Producto[]>([])
   const [cargando, setCargando] = useState(true)
+  const [escaneando, setEscaneando] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   // Cargamos las categorías una vez para el filtro.
@@ -50,13 +52,33 @@ export function SearchPage() {
       <h2 className="pagina__titulo">Buscar productos</h2>
 
       <div className="filtros">
-        <input
-          className="filtros__texto"
-          value={texto}
-          onChange={(e) => setTexto(e.target.value)}
-          placeholder="Buscar por nombre…"
-          autoComplete="off"
-        />
+        <div className="filtros__busqueda">
+          <input
+            className="filtros__texto"
+            value={texto}
+            onChange={(e) => setTexto(e.target.value)}
+            placeholder="Buscar por nombre o código…"
+            inputMode="search"
+            autoComplete="off"
+          />
+          <button
+            type="button"
+            className="btn btn--chico"
+            onClick={() => setEscaneando((v) => !v)}
+          >
+            {escaneando ? 'Cerrar' : '📷 Escanear'}
+          </button>
+        </div>
+
+        {escaneando && (
+          <BarcodeScanner
+            onDetectado={(codigo) => {
+              setTexto(codigo)
+              setEscaneando(false)
+            }}
+          />
+        )}
+
         <select
           className="filtros__categoria"
           value={categoria}

@@ -221,6 +221,22 @@ body {
   gap: 8px;
 }
 
+.filtros__busqueda {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.filtros__busqueda .filtros__texto {
+  flex: 1;
+  min-width: 0;
+}
+
+.filtros__busqueda .btn {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
 /* ---------- Inputs / selects ---------- */
 input,
 select {

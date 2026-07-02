@@ -27,14 +27,20 @@ export interface FiltroBusqueda {
   categoria?: string
 }
 
-/** Busca productos por nombre parcial (case-insensitive) y/o categoría. */
+/**
+ * Busca productos por texto parcial (case-insensitive) en el nombre O en el
+ * código de barras, y/o por categoría. El texto sirve tanto para lo que se
+ * tipea como para lo que se escanea.
+ */
 export async function buscarProductos(filtro: FiltroBusqueda = {}): Promise<Producto[]> {
   let query = supabase.from(TABLA).select('*').order('nombre', { ascending: true })
 
   const texto = filtro.texto?.trim()
   if (texto) {
+    // Sacamos comas y paréntesis: rompen la sintaxis del filtro .or() de PostgREST.
+    const patron = texto.replace(/[(),]/g, ' ').trim()
     // ilike = case-insensitive; los % hacen la coincidencia parcial.
-    query = query.ilike('nombre', `%${texto}%`)
+    query = query.or(`nombre.ilike.%${patron}%,codigo_barras.ilike.%${patron}%`)
   }
   if (filtro.categoria) {
     query = query.eq('categoria', filtro.categoria)
