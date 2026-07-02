@@ -1,0 +1,377 @@
+:root {
+  --bg: #f4f5f7;
+  --surface: #ffffff;
+  --text: #1c1c1e;
+  --text-suave: #6b7280;
+  --borde: #e2e4e9;
+  --primario: #2563eb;
+  --primario-texto: #ffffff;
+  --peligro: #dc2626;
+  --ok: #16a34a;
+  --warn: #b45309;
+  --warn-bg: #fef3c7;
+  --ok-bg: #dcfce7;
+  --error-bg: #fee2e2;
+  --radio: 12px;
+  --sombra: 0 1px 3px rgba(0, 0, 0, 0.08);
+
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  min-height: 100svh;
+}
+
+body {
+  background: var(--bg);
+}
+
+/* ---------- Layout general ---------- */
+.app {
+  max-width: 640px;
+  margin: 0 auto;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+}
+
+.app__header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  padding: 14px 16px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--borde);
+}
+
+.app__titulo {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.app__main {
+  flex: 1;
+  padding: 16px;
+  /* Espacio para que el contenido no quede tapado por la barra inferior. */
+  padding-bottom: 88px;
+}
+
+/* ---------- Barra de navegación inferior ---------- */
+.nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-width: 640px;
+  margin: 0 auto;
+  display: flex;
+  background: var(--surface);
+  border-top: 1px solid var(--borde);
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+.nav__item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px 4px;
+  font-size: 12px;
+  text-decoration: none;
+  color: var(--text-suave);
+}
+
+.nav__item.active {
+  color: var(--primario);
+  font-weight: 600;
+}
+
+.nav__icono {
+  font-size: 20px;
+}
+
+/* ---------- Páginas ---------- */
+.pagina {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pagina__cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pagina__titulo {
+  font-size: 20px;
+  margin: 0;
+}
+
+/* ---------- Botones ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px 16px;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: opacity 0.15s ease;
+}
+
+.btn:active {
+  opacity: 0.7;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.btn--primario {
+  background: var(--primario);
+  color: var(--primario-texto);
+  border-color: var(--primario);
+}
+
+.btn--peligro {
+  color: var(--peligro);
+  border-color: var(--peligro);
+}
+
+.btn--chico {
+  padding: 7px 12px;
+  font-size: 13px;
+}
+
+/* ---------- Escáner ---------- */
+.scanner {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.scanner__viewport {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: #000;
+  border-radius: var(--radio);
+  overflow: hidden;
+}
+
+.scanner__video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.scanner__apagada {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+  font-size: 14px;
+}
+
+.scanner__guia {
+  position: absolute;
+  top: 50%;
+  left: 8%;
+  right: 8%;
+  height: 2px;
+  background: rgba(37, 99, 235, 0.9);
+  box-shadow: 0 0 8px 2px rgba(37, 99, 235, 0.6);
+}
+
+/* ---------- Búsqueda manual y filtros ---------- */
+.busqueda-manual {
+  display: flex;
+  gap: 8px;
+}
+
+.busqueda-manual input {
+  flex: 1;
+}
+
+.filtros {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ---------- Inputs / selects ---------- */
+input,
+select {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px; /* 16px evita el zoom automático en iOS */
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  background: var(--surface);
+  color: var(--text);
+}
+
+input:focus,
+select:focus {
+  outline: 2px solid var(--primario);
+  outline-offset: -1px;
+}
+
+input[readonly] {
+  background: #f1f2f4;
+  color: var(--text-suave);
+}
+
+/* ---------- Formulario ---------- */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: var(--surface);
+  padding: 16px;
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+}
+
+.form__campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-suave);
+}
+
+.form__acciones {
+  display: flex;
+  gap: 8px;
+}
+
+.form__acciones .btn {
+  flex: 1;
+}
+
+/* ---------- Tarjeta de producto ---------- */
+.lista {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.card {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px;
+  background: var(--surface);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+}
+
+.card__info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.card__nombre {
+  margin: 0;
+  font-size: 16px;
+}
+
+.card__codigo {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-suave);
+}
+
+.card__lateral {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.card__precio {
+  font-size: 17px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.card__acciones {
+  display: flex;
+  gap: 6px;
+}
+
+.chip {
+  align-self: flex-start;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--bg);
+  font-size: 12px;
+  color: var(--text-suave);
+}
+
+/* ---------- Avisos y alertas ---------- */
+.resultado {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.aviso {
+  margin: 0;
+  color: var(--text-suave);
+  font-size: 14px;
+}
+
+.aviso--ok {
+  color: var(--ok);
+  font-weight: 600;
+}
+
+.aviso--warn {
+  color: var(--warn);
+  background: var(--warn-bg);
+  padding: 10px 12px;
+  border-radius: var(--radio);
+}
+
+.alerta {
+  margin: 0;
+  padding: 12px;
+  border-radius: var(--radio);
+  font-size: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.alerta--error {
+  background: var(--error-bg);
+  color: var(--peligro);
+}
