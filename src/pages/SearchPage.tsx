@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import type { FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { BarcodeScanner } from '../components/BarcodeScanner'
 import { ProductoCard } from '../components/ProductoCard'
@@ -11,8 +12,9 @@ export function SearchPage() {
   const [categoria, setCategoria] = useState('')
   const [categorias, setCategorias] = useState<string[]>([])
   const [resultados, setResultados] = useState<Producto[]>([])
-  const [cargando, setCargando] = useState(true)
+  const [cargando, setCargando] = useState(false)
   const [escaneando, setEscaneando] = useState(false)
+  const [busquedaHecha, setBusquedaHecha] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   // Cargamos las categorías una vez para el filtro.
@@ -22,68 +24,87 @@ export function SearchPage() {
       .catch(() => setCategorias([]))
   }, [])
 
-  // Búsqueda en vivo con un pequeño debounce para no pegarle a la base en cada tecla.
-  useEffect(() => {
-    let vigente = true
-
-    const timer = setTimeout(() => {
-      setCargando(true)
-      setError(null)
-      buscarProductos({ texto, categoria })
-        .then((r) => {
-          if (vigente) setResultados(r)
-        })
-        .catch((e) => {
-          if (vigente) setError(mensajeError(e))
-        })
-        .finally(() => {
-          if (vigente) setCargando(false)
-        })
-    }, 250)
-
-    return () => {
-      vigente = false
-      clearTimeout(timer)
+  // Lanza la consulta (se llama desde el botón, el scan o el filtro de categoría).
+  async function ejecutarBusqueda(textoBusqueda: string, categoriaBusqueda: string) {
+    setCargando(true)
+    setError(null)
+    setBusquedaHecha(true)
+    try {
+      const encontrados = await buscarProductos({ texto: textoBusqueda, categoria: categoriaBusqueda })
+      setResultados(encontrados)
+    } catch (e) {
+      setError(mensajeError(e))
+      setResultados([])
+    } finally {
+      setCargando(false)
     }
-  }, [texto, categoria])
+  }
+
+  // "Todas las categorías" no busca nada: solo limpia la pantalla.
+  function limpiarPantalla() {
+    setResultados([])
+    setBusquedaHecha(false)
+    setError(null)
+  }
+
+  function manejarSubmit(evento: FormEvent) {
+    evento.preventDefault()
+    void ejecutarBusqueda(texto, categoria)
+  }
+
+  function manejarCategoria(nueva: string) {
+    setCategoria(nueva)
+    if (nueva === '') {
+      limpiarPantalla()
+    } else {
+      void ejecutarBusqueda(texto, nueva)
+    }
+  }
 
   return (
     <section className="pagina">
       <h2 className="pagina__titulo">Buscar productos</h2>
 
       <div className="filtros">
-        <div className="filtros__busqueda">
-          <input
-            className="filtros__texto"
-            value={texto}
-            onChange={(e) => setTexto(e.target.value)}
-            placeholder="Buscar por nombre o código…"
-            inputMode="search"
-            autoComplete="off"
-          />
-          <button
-            type="button"
-            className="btn btn--chico"
-            onClick={() => setEscaneando((v) => !v)}
-          >
-            {escaneando ? 'Cerrar' : '📷 Escanear'}
-          </button>
-        </div>
+        <form className="filtros__form" onSubmit={manejarSubmit}>
+          <div className="filtros__busqueda">
+            <input
+              className="filtros__texto"
+              value={texto}
+              onChange={(e) => setTexto(e.target.value)}
+              placeholder="Buscar por nombre o código…"
+              inputMode="search"
+              autoComplete="off"
+            />
+            <button
+              type="button"
+              className="btn btn--chico"
+              onClick={() => setEscaneando((v) => !v)}
+            >
+              {escaneando ? 'Cerrar' : '📷 Escanear'}
+            </button>
+          </div>
 
-        {escaneando && (
-          <BarcodeScanner
-            autoIniciar
-            onDetectado={(codigo) => {
-              setTexto(codigo)
-              setEscaneando(false)
-            }}
-          />
-        )}
+          {escaneando && (
+            <BarcodeScanner
+              autoIniciar
+              onDetectado={(codigo) => {
+                setTexto(codigo)
+                setEscaneando(false)
+                void ejecutarBusqueda(codigo, categoria)
+              }}
+            />
+          )}
+
+          <button type="submit" className="btn btn--primario">
+            Buscar
+          </button>
+        </form>
 
         <select
           className="filtros__categoria"
           value={categoria}
-          onChange={(e) => setCategoria(e.target.value)}
+          onChange={(e) => manejarCategoria(e.target.value)}
         >
           <option value="">Todas las categorías</option>
           {categorias.map((c) => (
@@ -96,7 +117,12 @@ export function SearchPage() {
 
       {error && <p className="alerta alerta--error">{error}</p>}
       {cargando && <p className="aviso">Buscando…</p>}
-      {!cargando && !error && resultados.length === 0 && (
+      {!cargando && !error && !busquedaHecha && (
+        <p className="aviso">
+          Escribí un nombre o código y tocá <strong>Buscar</strong>, o elegí una categoría.
+        </p>
+      )}
+      {!cargando && !error && busquedaHecha && resultados.length === 0 && (
         <p className="aviso">No se encontraron productos.</p>
       )}
 

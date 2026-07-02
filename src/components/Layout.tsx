@@ -13,10 +13,6 @@ export function Layout() {
 
       <nav className="nav">
         <NavLink to="/" end className="nav__item">
-          <span className="nav__icono">📷</span>
-          <span>Escanear</span>
-        </NavLink>
-        <NavLink to="/buscar" className="nav__item">
           <span className="nav__icono">🔎</span>
           <span>Buscar</span>
         </NavLink>

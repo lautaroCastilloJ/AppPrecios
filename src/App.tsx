@@ -1,6 +1,5 @@
-import { Link, Route, Routes } from 'react-router-dom'
+import { Link, Navigate, Route, Routes } from 'react-router-dom'
 import { Layout } from './components/Layout'
-import { ScanPage } from './pages/ScanPage'
 import { SearchPage } from './pages/SearchPage'
 import { ProductosPage } from './pages/ProductosPage'
 import { NuevoProductoPage } from './pages/NuevoProductoPage'
@@ -21,8 +20,8 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<Layout />}>
-        <Route index element={<ScanPage />} />
-        <Route path="buscar" element={<SearchPage />} />
+        <Route index element={<SearchPage />} />
+        <Route path="buscar" element={<Navigate to="/" replace />} />
         <Route path="productos" element={<ProductosPage />} />
         <Route path="productos/nuevo" element={<NuevoProductoPage />} />
         <Route path="productos/:id/editar" element={<EditarProductoPage />} />
