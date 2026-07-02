@@ -72,6 +72,7 @@ export function SearchPage() {
 
         {escaneando && (
           <BarcodeScanner
+            autoIniciar
             onDetectado={(codigo) => {
               setTexto(codigo)
               setEscaneando(false)

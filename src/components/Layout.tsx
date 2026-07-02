@@ -4,7 +4,7 @@ export function Layout() {
   return (
     <div className="app">
       <header className="app__header">
-        <span className="app__titulo">🏪 Precios Almacén</span>
+        <img src="/logo.jpg" alt="El Almacén de Castillo" className="app__logo" />
       </header>
 
       <main className="app__main">

@@ -50,14 +50,19 @@ body {
   position: sticky;
   top: 0;
   z-index: 10;
-  padding: 14px 16px;
-  background: var(--surface);
-  border-bottom: 1px solid var(--borde);
+  padding: 8px 16px;
+  background: #262629;
+  border-bottom: 1px solid #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.app__titulo {
-  font-size: 18px;
-  font-weight: 700;
+.app__logo {
+  height: 48px;
+  width: auto;
+  border-radius: 8px;
+  display: block;
 }
 
 .app__main {

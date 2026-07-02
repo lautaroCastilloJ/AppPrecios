@@ -87,6 +87,7 @@ export function ProductoForm({
             </div>
             {escaneando && (
               <BarcodeScanner
+                autoIniciar
                 onDetectado={(codigo) => {
                   setCodigoBarras(codigo)
                   setEscaneando(false)
