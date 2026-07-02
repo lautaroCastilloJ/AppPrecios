@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link } from 'react-router-dom'
-import { BarcodeScanner } from '../components/BarcodeScanner'
+import { BarcodeScanner } from '../components/BarcodeScannerLazy'
 import { ProductoCard } from '../components/ProductoCard'
 import { buscarProductos, listarCategorias } from '../services/productos'
 import type { Producto } from '../types/producto'
@@ -87,7 +87,6 @@ export function SearchPage() {
 
           {escaneando && (
             <BarcodeScanner
-              autoIniciar
               onDetectado={(codigo) => {
                 setTexto(codigo)
                 setEscaneando(false)

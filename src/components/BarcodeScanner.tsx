@@ -1,12 +1,12 @@
-import { useState } from 'react'
-import { useZxing } from 'react-zxing'
+import { useEffect, useRef, useState } from 'react'
+import { BarcodeScanner as ZbarScanner } from 'modern-barcode-scanner'
+import type { BarcodeScannerRef, ScanResult } from 'modern-barcode-scanner'
+import 'modern-barcode-scanner/styles.css'
 import { mensajeError } from '../lib/errores'
 
 interface Props {
   /** Se llama con el código de barras leído cuando el escáner detecta uno. */
   onDetectado: (codigo: string) => void
-  /** Arranca la cámara apenas se monta (flujo de "un solo tap"; el montaje ya viene de un gesto). */
-  autoIniciar?: boolean
 }
 
 const MENSAJE_HTTPS =
@@ -37,60 +37,37 @@ function describirErrorCamara(err: unknown): string {
 /**
  * Escáner de códigos de barras EAN/UPC.
  *
- * Pensado para andar en Safari de iOS:
- * - usa react-zxing (ponyfill WASM), NO la API nativa BarcodeDetector;
- * - el <video> tiene playsInline y muted;
- * - la cámara arranca a partir de un gesto del usuario (botón propio o `autoIniciar`);
- * - pide la cámara trasera con facingMode: "environment".
+ * Usa `modern-barcode-scanner` (motor ZBar vía WASM, worker y wasm embebidos):
+ * lee mejor los códigos 1D del mundo real y no depende de la API nativa
+ * BarcodeDetector, así que anda en Safari de iOS.
+ *
+ * Se monta sólo cuando el usuario toca "Escanear" (gesto requerido por iOS),
+ * y arranca la cámara al montarse con `start()` sobre el ref.
  */
-export function BarcodeScanner({ onDetectado, autoIniciar = false }: Props) {
-  // Con autoIniciar arrancamos ya prendida (el montaje viene de un gesto del usuario).
-  const [activo, setActivo] = useState(() => autoIniciar && camaraDisponible())
+export function BarcodeScanner({ onDetectado }: Props) {
+  const scannerRef = useRef<BarcodeScannerRef>(null)
   const [error, setError] = useState<string | null>(() =>
-    autoIniciar && !camaraDisponible() ? MENSAJE_HTTPS : null,
+    camaraDisponible() ? null : MENSAJE_HTTPS,
   )
 
-  const { ref } = useZxing({
-    paused: !activo,
-    constraints: { audio: false, video: { facingMode: 'environment' } },
-    onDecodeResult(result) {
-      setActivo(false)
-      onDetectado(result.rawValue)
-    },
-    onError(err) {
-      setActivo(false)
-      setError(describirErrorCamara(err))
-    },
-  })
-
-  function iniciar() {
-    setError(null)
-    if (!camaraDisponible()) {
-      setError(MENSAJE_HTTPS)
-      return
-    }
-    setActivo(true)
-  }
+  useEffect(() => {
+    if (!camaraDisponible()) return
+    const scanner = scannerRef.current
+    scanner?.start()?.catch((e: unknown) => setError(describirErrorCamara(e)))
+    return () => scanner?.stop()
+  }, [])
 
   return (
     <div className="scanner">
       <div className="scanner__viewport">
-        <video ref={ref} className="scanner__video" playsInline muted />
-        {!activo && <div className="scanner__apagada">Cámara apagada</div>}
-        {activo && <div className="scanner__guia" aria-hidden="true" />}
+        <ZbarScanner
+          ref={scannerRef}
+          onScan={(result: ScanResult) => onDetectado(result.scanData)}
+          onError={(e) => setError(describirErrorCamara(e))}
+          initialFacingMode="environment"
+          themeColor="#2563eb"
+        />
       </div>
-
-      {/* Botones internos sólo cuando NO es autoIniciar (ahí el padre maneja abrir/cerrar). */}
-      {!autoIniciar &&
-        (activo ? (
-          <button type="button" className="btn" onClick={() => setActivo(false)}>
-            Detener
-          </button>
-        ) : (
-          <button type="button" className="btn btn--primario" onClick={iniciar}>
-            📷 Escanear
-          </button>
-        ))}
 
       {error && <p className="alerta alerta--error">{error}</p>}
     </div>

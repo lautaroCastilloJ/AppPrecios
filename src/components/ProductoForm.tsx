@@ -2,7 +2,7 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import type { NuevoProducto, Producto } from '../types/producto'
 import { mensajeError } from '../lib/errores'
-import { BarcodeScanner } from './BarcodeScanner'
+import { BarcodeScanner } from './BarcodeScannerLazy'
 
 interface Props {
   /** Valores iniciales (para editar, o para precargar el código al escanear). */
@@ -87,7 +87,6 @@ export function ProductoForm({
             </div>
             {escaneando && (
               <BarcodeScanner
-                autoIniciar
                 onDetectado={(codigo) => {
                   setCodigoBarras(codigo)
                   setEscaneando(false)
