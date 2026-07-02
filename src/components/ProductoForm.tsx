@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import type { NuevoProducto, Producto } from '../types/producto'
 import { mensajeError } from '../lib/errores'
+import { BarcodeScanner } from './BarcodeScanner'
 
 interface Props {
   /** Valores iniciales (para editar, o para precargar el código al escanear). */
@@ -25,6 +26,7 @@ export function ProductoForm({
   const [categoria, setCategoria] = useState(inicial?.categoria ?? '')
   const [precio, setPrecio] = useState(inicial?.precio != null ? String(inicial.precio) : '')
   const [guardando, setGuardando] = useState(false)
+  const [escaneando, setEscaneando] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   async function manejarSubmit(evento: FormEvent) {
@@ -61,16 +63,39 @@ export function ProductoForm({
 
   return (
     <form className="form" onSubmit={manejarSubmit}>
-      <label className="form__campo">
+      <div className="form__campo">
         <span>Código de barras</span>
-        <input
-          value={codigoBarras}
-          onChange={(e) => setCodigoBarras(e.target.value)}
-          readOnly={codigoBloqueado}
-          inputMode="numeric"
-          autoComplete="off"
-        />
-      </label>
+        {codigoBloqueado ? (
+          <input value={codigoBarras} readOnly inputMode="numeric" autoComplete="off" />
+        ) : (
+          <>
+            <div className="form__codigo-row">
+              <input
+                value={codigoBarras}
+                onChange={(e) => setCodigoBarras(e.target.value)}
+                inputMode="numeric"
+                autoComplete="off"
+                placeholder="Escaneá o ingresá el código"
+              />
+              <button
+                type="button"
+                className="btn btn--chico"
+                onClick={() => setEscaneando((v) => !v)}
+              >
+                {escaneando ? 'Cerrar' : '📷 Escanear'}
+              </button>
+            </div>
+            {escaneando && (
+              <BarcodeScanner
+                onDetectado={(codigo) => {
+                  setCodigoBarras(codigo)
+                  setEscaneando(false)
+                }}
+              />
+            )}
+          </>
+        )}
+      </div>
 
       <label className="form__campo">
         <span>Nombre</span>

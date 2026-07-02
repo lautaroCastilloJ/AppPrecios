@@ -264,6 +264,22 @@ input[readonly] {
   color: var(--text-suave);
 }
 
+.form__codigo-row {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.form__codigo-row input {
+  flex: 1;
+  min-width: 0;
+}
+
+.form__codigo-row .btn {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
 .form__acciones {
   display: flex;
   gap: 8px;
